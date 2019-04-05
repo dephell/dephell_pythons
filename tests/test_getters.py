@@ -3,7 +3,7 @@ import pytest
 from packaging.version import Version
 
 # project
-from dephell.pythons import Pythons
+from dephell_pythons import Pythons
 
 
 @pytest.mark.parametrize('version', [

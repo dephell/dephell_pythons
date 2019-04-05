@@ -25,6 +25,12 @@ python.name     # 'python3.7'
 python.path     # Path('/usr/local/bin/python3.7')
 python.version  # <Version('3.7.0')>
 
+python.lib_paths
+# [Path('/usr/local/lib/python37.zip'), Path('/usr/local/lib/python3.7'), ...]
+
+python.lib_path
+# Path('/home/gram/.local/lib/python3.7/site-packages')
+
 # get by version
 pythons.get_best('3.5').version
 # <Version('3.5.2')>
