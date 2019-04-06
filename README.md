@@ -1,5 +1,10 @@
 # Dephell Pythons
 
+
+[![travis](https://travis-ci.org/dephell/dephell_pythons.svg?branch=master)](https://travis-ci.org/dephell/dephell_pythons)
+[![appveyor](https://ci.appveyor.com/api/projects/status/github/dephell/dephell_pythons?svg=true)](https://ci.appveyor.com/project/orsinium/dephell-pythons)
+[![MIT License](https://img.shields.io/pypi/l/dephell-pythons.svg)](https://github.com/dephell/dephell_pythons/blob/master/LICENSE)
+
 Work with python versions.
 
 ## Installation

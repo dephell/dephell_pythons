@@ -8,30 +8,34 @@ from typing import Iterator, Optional, Union
 # external
 import attr
 from packaging.version import InvalidVersion, Version
-from pythonfinder import Finder
 
 # project
 from dephell_specifier import RangeSpecifier
 
 # app
-from ._constants import PYTHONS
+from ._constants import PYTHONS, IS_WINDOWS
+from ._finder import Finder
 from ._python import Python
+from ._windows import WindowsFinder
 
 
-@attr.s(slots=True)
+@attr.s()
 class Pythons:
     abstract = attr.ib(type=bool, default=False)
-    finder = Finder()
+    finder = attr.ib(default=Finder(), repr=False)
+    windows_finder = attr.ib(default=WindowsFinder(), repr=False)
 
     # PROPERTIES
 
     @property
     def current(self):
+        implementation = python_implementation().lower()
+        if implementation == 'cpython':
+            implementation = 'python'
         return Python(
             path=Path(sys.executable),
-            name=Path(sys.executable).name,
-            version=Version(python_version()),
-            implementation=python_implementation(),
+            version=Version(python_version().rstrip('+')),
+            implementation=implementation,
         )
 
     # PUBLIC METHODS
@@ -134,31 +138,20 @@ class Pythons:
         return None
 
     def get_by_path(self, path: Path) -> Optional[Python]:
-        if not path.exists():
+        if not path.is_file():
             return None
         for python in self:
             if path.samefile(python.path):
                 return python
         return None
 
-    # PRIVATE METHODS
-
-    @staticmethod
-    def _entry_to_python(entry) -> Python:
-        return Python(
-            path=entry.path,
-            name=entry.name,
-            version=entry.py_version.version,
-            # TODO: detect implementation (How? From path?)
-            implementation=python_implementation(),
-        )
-
     # MAGIC METHODS
 
     def __iter__(self) -> Iterator[Python]:
         if not self.abstract:
-            for entry in self.finder.find_all_python_versions():
-                yield self._entry_to_python(entry)
+            yield from self.finder.pythons
+            if IS_WINDOWS:
+                yield from self.windows_finder.pythons
             return
 
         # return non-abstract pythons
@@ -175,11 +168,10 @@ class Pythons:
             if version in returned:
                 continue
             path = self.current.path
-            name = 'python' + version
+            path = path.parent / ('python' + version + path.suffix)
             yield Python(
-                path=path.parent / (name + path.suffix),
+                path=path,
                 version=Version(version),
-                name=name,
-                implementation=self.current.implementation,
+                implementation=self.finder.get_implementation(path),
                 abstract=True,
             )

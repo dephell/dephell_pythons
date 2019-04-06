@@ -14,7 +14,6 @@ from ._cached_property import cached_property
 class Python:
     path = attr.ib(type=Path)
     version = attr.ib(type=Version)
-    name = attr.ib(type=str)
     implementation = attr.ib(type=str)
     abstract = attr.ib(type=bool, default=False)
 
@@ -22,10 +21,14 @@ class Python:
         numbers = map(str, self.version.release[:size])
         return Version('.'.join(numbers))
 
+    @property
+    def name(self):
+        return self.path.name
+
     @cached_property
     def lib_paths(self) -> List[Path]:
         command = r'print("\n".join(__import__("sys").path))'
-        result = subprocess.run([str(self.path), '-c', command], capture_output=True)
+        result = subprocess.run([str(self.path), '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode != 0:
             raise LookupError(result.stderr.decode())
         paths = [path.strip() for path in result.stdout.decode().split('\n')]
@@ -35,5 +38,8 @@ class Python:
     def lib_path(self) -> Path:
         for path in self.lib_paths:
             if 'site-packages' in path.parts:
+                return path
+        for path in self.lib_paths:
+            if 'Lib' in path.parts:
                 return path
         raise LookupError('cannot find lib path')
