@@ -17,34 +17,24 @@ class Finder:
     # properties
 
     @cached_property
-    def pyenv_path(self) -> Optional[Path]:
-        if not {'PYENV_SHELL', 'PYENV_ROOT'} & set(os.environ):
-            return None
-        path = os.environ.get('PYENV_ROOT', '~/.pyenv')
-        path = os.path.expandvars(path).strip('"')
-        try:
-            return Path(path).expanduser().resolve()
-        except FileNotFoundError:
-            return None
-
-    @cached_property
-    def asdf_path(self) -> Optional[Path]:
-        if not {'ASDF_DIR', 'ASDF_DATA_DIR'} & set(os.environ):
-            return None
-        path = os.environ.get('ASDF_DATA_DIR', '~/.asdf')
-        path = os.path.expandvars(path).strip('"')
-        try:
-            return Path(path).expanduser().resolve()
-        except FileNotFoundError:
-            return None
-
-    @cached_property
     def shims(self) -> List[Path]:
+        known_paths = (
+            # pyenv
+            '~/.pyenv',
+            '/opt/pyenv/shims/',
+            os.environ.get('PYENV_ROOT'),
+            # asdf
+            '~/.asdf',
+            os.environ.get('ASDF_DATA_DIR'),
+        )
         paths = []
-        if self.pyenv_path is not None:
-            paths.append(self.pyenv_path)
-        if self.asdf_path is not None:
-            paths.append(self.asdf_path)
+        for path in known_paths:
+            if not path:
+                continue
+            path = os.path.expandvars(path).strip('"')
+            path = Path(path).expanduser()
+            if path.exists():
+                paths.append(path.resolve())
         return paths
 
     @cached_property
