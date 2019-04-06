@@ -14,8 +14,13 @@ class WindowsFinder:
 
         pythons = []
         for env in findall():
+            path = getattr(env.info._d['InstallPath'], 'executable_path', None)
+            if path is None:
+                path = getattr(env.info._d['InstallPath'], '', None)
+                if path is None:
+                    continue
             python = Python(
-                path=env.info._d['InstallPath'].executable_path,
+                path=path,
                 version=Version(str(env.info._d['Version'])),
                 implementation='python',  # TODO: guess architecture
             )
