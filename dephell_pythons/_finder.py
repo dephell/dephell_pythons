@@ -58,11 +58,11 @@ class Finder:
 
     @staticmethod
     def get_version(path: Path) -> str:
-        command = r'print(__import__("sys").version.split()[0])'
+        command = r'print(__import__("sys").version)'
         result = subprocess.run([str(path), '-c', command], capture_output=True)
         if result.returncode != 0:
             raise LookupError(result.stderr.decode())
-        return result.stdout.decode().strip()
+        return result.stdout.decode().split()[0].strip()
 
     def is_python(self, path: Path) -> bool:
         # https://stackoverflow.com/a/377028/8704691
@@ -86,11 +86,9 @@ class Finder:
         return False
 
     def get_pythons(self, paths: Iterable = None) -> Iterator[Path]:
-        all_paths = self.paths
-        if paths is not None:
-            all_paths = list(paths) + all_paths
-
-        for path in all_paths:
+        if paths is None:
+            paths = self.paths
+        for path in paths:
             if path.is_file():
                 if self.is_python(path=path):
                     yield path
