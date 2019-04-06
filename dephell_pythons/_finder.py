@@ -53,10 +53,10 @@ class Finder:
         good_paths = []
         for path in all_paths:
             path = os.path.expandvars(path.strip('"'))
-            try:
-                path = Path(path).expanduser().resolve()
-            except FileNotFoundError:
+            path = Path(path).expanduser()
+            if not path.exists():
                 continue
+            path = path.resolve()
             if not self.in_shims(path):
                 good_paths.append(path)
         return good_paths
