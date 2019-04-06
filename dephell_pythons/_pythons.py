@@ -34,7 +34,7 @@ class Pythons:
             implementation = 'python'
         return Python(
             path=Path(sys.executable),
-            version=Version(python_version()),
+            version=Version(python_version().rstrip('+')),
             implementation=implementation,
         )
 
