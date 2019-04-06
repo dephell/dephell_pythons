@@ -36,10 +36,13 @@ class Pythons:
 
     @property
     def current(self):
+        implementation = python_implementation().lower()
+        if implementation == 'cpython':
+            implementation = 'python'
         return Python(
             path=Path(sys.executable),
             version=Version(python_version()),
-            implementation=python_implementation(),
+            implementation=implementation,
         )
 
     # PUBLIC METHODS
@@ -156,8 +159,7 @@ class Pythons:
             yield Python(
                 path=entry.path,
                 version=entry.py_version.version,
-                # TODO: detect implementation (How? From path?)
-                implementation=python_implementation(),
+                implementation=Finder.get_implementation(entry.path),
             )
 
     @cached_property
@@ -167,8 +169,7 @@ class Pythons:
             pythons.append(Python(
                 path=path,
                 version=Version(self.finder.get_version(path)),
-                # TODO: detect implementation (How? From path?)
-                implementation=python_implementation(),
+                implementation=self.finder.get_implementation(path),
             ))
         pythons.sort(key=attrgetter('version'), reverse=True)
         return pythons
@@ -197,10 +198,10 @@ class Pythons:
             if version in returned:
                 continue
             path = self.current.path
-            name = 'python' + version
+            path = path.parent / ('python' + version + path.suffix)
             yield Python(
-                path=path.parent / (name + path.suffix),
+                path=path,
                 version=Version(version),
-                implementation=self.current.implementation,
+                implementation=Finder.get_implementation(path),
                 abstract=True,
             )

@@ -75,6 +75,13 @@ class Finder:
             raise LookupError(result.stderr.decode())
         return result.stdout.decode().split()[0]
 
+    @staticmethod
+    def get_implementation(path: Path) -> Optional[str]:
+        for implementation in PYTHON_IMPLEMENTATIONS:
+            if path.name.startswith(implementation):
+                return implementation
+        return None
+
     def is_python(self, path: Path) -> bool:
         # https://stackoverflow.com/a/377028/8704691
         if not path.is_file():
@@ -82,7 +89,7 @@ class Finder:
         if not os.access(str(path), os.X_OK):
             return False
 
-        implementation = self._get_implementation(path=path)
+        implementation = self.get_implementation(path=path)
         if implementation is None:
             return False
 
@@ -107,12 +114,3 @@ class Finder:
             for executable in path.iterdir():
                 if self.is_python(path=executable):
                     yield executable
-
-    # private methods
-
-    @staticmethod
-    def _get_implementation(path: Path) -> Optional[str]:
-        for implementation in PYTHON_IMPLEMENTATIONS:
-            if path.name.startswith(implementation):
-                return implementation
-        return None
