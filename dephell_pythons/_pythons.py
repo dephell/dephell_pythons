@@ -16,21 +16,16 @@ from dephell_specifier import RangeSpecifier
 
 # app
 from ._cached_property import cached_property
-from ._constants import PYTHONS
+from ._constants import PYTHONS, IS_WINDOWS
 from ._finder import Finder
 from ._python import Python
-
-
-def _get_finder():
-    if os.name == "nt":
-        return WindowsFinder()
-    return Finder()
 
 
 @attr.s()
 class Pythons:
     abstract = attr.ib(type=bool, default=False)
-    finder = attr.ib(factory=_get_finder, repr=False)
+    finder = attr.ib(default=Finder(), repr=False)
+    windows = attr.ib(default=IS_WINDOWS and WindowsFinder(), repr=False)
 
     # PROPERTIES
 
@@ -145,7 +140,7 @@ class Pythons:
         return None
 
     def get_by_path(self, path: Path) -> Optional[Python]:
-        if not path.exists():
+        if not path.is_file():
             return None
         for python in self:
             if path.samefile(python.path):
@@ -155,11 +150,11 @@ class Pythons:
     # PRIVATE METHODS
 
     def _get_from_pythonfinder(self) -> Iterator[Python]:
-        for entry in self.finder.find_all_python_versions():
+        for entry in self.windows.find_all_python_versions():
             yield Python(
                 path=entry.path,
                 version=entry.py_version.version,
-                implementation=Finder.get_implementation(entry.path),
+                implementation=self.finder.get_implementation(entry.path),
             )
 
     @cached_property
@@ -178,7 +173,7 @@ class Pythons:
 
     def __iter__(self) -> Iterator[Python]:
         if not self.abstract:
-            if isinstance(self.finder, WindowsFinder):
+            if IS_WINDOWS:
                 yield from self._get_from_pythonfinder()
             else:
                 yield from self._pythons
@@ -202,6 +197,6 @@ class Pythons:
             yield Python(
                 path=path,
                 version=Version(version),
-                implementation=Finder.get_implementation(path),
+                implementation=self.finder.get_implementation(path),
                 abstract=True,
             )
