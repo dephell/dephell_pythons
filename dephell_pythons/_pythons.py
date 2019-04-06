@@ -1,31 +1,29 @@
 # built-in
 import os
 import sys
-from operator import attrgetter
 from pathlib import Path
 from platform import python_implementation, python_version
-from typing import Iterator, Optional, Union, List
+from typing import Iterator, Optional, Union
 
 # external
 import attr
 from packaging.version import InvalidVersion, Version
-from pythonfinder import WindowsFinder
 
 # project
 from dephell_specifier import RangeSpecifier
 
 # app
-from ._cached_property import cached_property
 from ._constants import PYTHONS, IS_WINDOWS
 from ._finder import Finder
 from ._python import Python
+from ._windows import WindowsFinder
 
 
 @attr.s()
 class Pythons:
     abstract = attr.ib(type=bool, default=False)
     finder = attr.ib(default=Finder(), repr=False)
-    windows = attr.ib(default=IS_WINDOWS and WindowsFinder(), repr=False)
+    windows_finder = attr.ib(default=WindowsFinder(), repr=False)
 
     # PROPERTIES
 
@@ -147,36 +145,13 @@ class Pythons:
                 return python
         return None
 
-    # PRIVATE METHODS
-
-    def _get_from_pythonfinder(self) -> Iterator[Python]:
-        for entry in self.windows.find_all_python_versions():
-            yield Python(
-                path=entry.path,
-                version=entry.py_version.version,
-                implementation=self.finder.get_implementation(entry.path),
-            )
-
-    @cached_property
-    def _pythons(self) -> List[Python]:
-        pythons = []
-        for path in self.finder.get_pythons():
-            pythons.append(Python(
-                path=path,
-                version=Version(self.finder.get_version(path)),
-                implementation=self.finder.get_implementation(path),
-            ))
-        pythons.sort(key=attrgetter('version'), reverse=True)
-        return pythons
-
     # MAGIC METHODS
 
     def __iter__(self) -> Iterator[Python]:
         if not self.abstract:
+            yield from self.finder.pythons
             if IS_WINDOWS:
-                yield from self._get_from_pythonfinder()
-            else:
-                yield from self._pythons
+                yield from self.windows_finder.pythons
             return
 
         # return non-abstract pythons

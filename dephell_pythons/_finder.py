@@ -2,11 +2,14 @@ import os
 import subprocess
 from fnmatch import fnmatch
 from functools import lru_cache
+from operator import attrgetter
+from packaging.version import Version
 from pathlib import Path
 from typing import Optional, List, Iterable, Iterator
 
 from ._cached_property import cached_property
 from ._constants import PYTHON_IMPLEMENTATIONS, SUFFIX_PATTERNS
+from ._python import Python
 
 
 class Finder:
@@ -48,6 +51,18 @@ class Finder:
             if not self.in_shims(path):
                 good_paths.append(path)
         return good_paths
+
+    @cached_property
+    def pythons(self) -> List[Python]:
+        pythons = []
+        for path in self.get_pythons():
+            pythons.append(Python(
+                path=path,
+                version=Version(self.get_version(path)),
+                implementation=self.get_implementation(path),
+            ))
+        pythons.sort(key=attrgetter('version'), reverse=True)
+        return pythons
 
     # public methods
 

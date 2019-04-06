@@ -39,4 +39,7 @@ class Python:
         for path in self.lib_paths:
             if 'site-packages' in path.parts:
                 return path
+        for path in self.lib_paths:
+            if 'Lib' in path.parts:
+                return path
         raise LookupError('cannot find lib path')
