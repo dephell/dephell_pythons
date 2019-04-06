@@ -1,9 +1,10 @@
 # built-in
 import os
 import sys
+from operator import attrgetter
 from pathlib import Path
 from platform import python_implementation, python_version
-from typing import Iterator, Optional, Union, Tuple
+from typing import Iterator, Optional, Union, List
 
 # external
 import attr
@@ -40,10 +41,6 @@ class Pythons:
             version=Version(python_version()),
             implementation=python_implementation(),
         )
-
-    @cached_property
-    def _paths(self) -> Tuple[Path, ...]:
-        return tuple(self.finder.get_pythons())
 
     # PUBLIC METHODS
 
@@ -163,14 +160,18 @@ class Pythons:
                 implementation=python_implementation(),
             )
 
-    def _get_from_finder(self) -> Iterator[Python]:
-        for path in self._paths:
-            yield Python(
+    @cached_property
+    def _pythons(self) -> List[Python]:
+        pythons = []
+        for path in self.finder.get_pythons():
+            pythons.append(Python(
                 path=path,
                 version=Version(self.finder.get_version(path)),
                 # TODO: detect implementation (How? From path?)
                 implementation=python_implementation(),
-            )
+            ))
+        pythons.sort(key=attrgetter('version'), reverse=True)
+        return pythons
 
     # MAGIC METHODS
 
@@ -179,7 +180,7 @@ class Pythons:
             if isinstance(self.finder, WindowsFinder):
                 yield from self._get_from_pythonfinder()
             else:
-                yield from self._get_from_finder()
+                yield from self._pythons
             return
 
         # return non-abstract pythons
