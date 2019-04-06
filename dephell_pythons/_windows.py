@@ -19,9 +19,13 @@ class WindowsFinder:
                 path = getattr(env.info._d['InstallPath'], '', None)
                 if path is None:
                     continue
+            version = str(env.info._d['Version'])
+            # conda returns it's own version
+            if version[0] not in '23':
+                continue
             python = Python(
                 path=path,
-                version=Version(str(env.info._d['Version'])),
+                version=Version(version),
                 implementation='python',  # TODO: guess architecture
             )
             python.lib_paths = self._get_lib_paths(env)
