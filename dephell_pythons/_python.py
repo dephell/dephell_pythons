@@ -28,7 +28,7 @@ class Python:
     @cached_property
     def lib_paths(self) -> List[Path]:
         command = r'print("\n".join(__import__("sys").path))'
-        result = subprocess.run([str(self.path), '-c', command], capture_output=True)
+        result = subprocess.run([str(self.path), '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode != 0:
             raise LookupError(result.stderr.decode())
         paths = [path.strip() for path in result.stdout.decode().split('\n')]
