@@ -29,7 +29,6 @@ class Pythons:
     def current(self):
         return Python(
             path=Path(sys.executable),
-            name=Path(sys.executable).name,
             version=Version(python_version()),
             implementation=python_implementation(),
         )
@@ -147,7 +146,6 @@ class Pythons:
     def _entry_to_python(entry) -> Python:
         return Python(
             path=entry.path,
-            name=entry.name,
             version=entry.py_version.version,
             # TODO: detect implementation (How? From path?)
             implementation=python_implementation(),
@@ -179,7 +177,6 @@ class Pythons:
             yield Python(
                 path=path.parent / (name + path.suffix),
                 version=Version(version),
-                name=name,
                 implementation=self.current.implementation,
                 abstract=True,
             )
