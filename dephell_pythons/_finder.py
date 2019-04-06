@@ -22,7 +22,10 @@ class Finder:
             return None
         path = os.environ.get('PYENV_ROOT', '~/.pyenv')
         path = os.path.expandvars(path).strip('"')
-        return Path(path).expanduser().resolve()
+        try:
+            return Path(path).expanduser().resolve()
+        except FileNotFoundError:
+            return None
 
     @cached_property
     def asdf_path(self) -> Optional[Path]:
@@ -30,7 +33,10 @@ class Finder:
             return None
         path = os.environ.get('ASDF_DATA_DIR', '~/.asdf')
         path = os.path.expandvars(path).strip('"')
-        return Path(path).expanduser().resolve()
+        try:
+            return Path(path).expanduser().resolve()
+        except FileNotFoundError:
+            return None
 
     @cached_property
     def shims(self) -> List[Path]:
@@ -47,7 +53,10 @@ class Finder:
         good_paths = []
         for path in all_paths:
             path = os.path.expandvars(path.strip('"'))
-            path = Path(path).expanduser().resolve()
+            try:
+                path = Path(path).expanduser().resolve()
+            except FileNotFoundError:
+                continue
             if not self.in_shims(path):
                 good_paths.append(path)
         return good_paths
