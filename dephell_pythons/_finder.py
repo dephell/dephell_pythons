@@ -87,7 +87,7 @@ class Finder:
         result = subprocess.run([str(path), '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode != 0:
             raise LookupError(result.stderr.decode())
-        return result.stdout.decode().split()[0]
+        return result.stdout.decode().split()[0].rstrip('+')
 
     @staticmethod
     def get_implementation(path: Path) -> Optional[str]:
