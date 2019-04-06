@@ -77,7 +77,7 @@ class Finder:
     def get_version(path: Path) -> str:
         if path.name.startswith('python'):
             # this works much faster, so let's do it if possible
-            result = subprocess.run([str(path), '--version'], capture_output=True)
+            result = subprocess.run([str(path), '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if result.returncode != 0:
                 raise LookupError(result.stderr.decode())
             # cpython 2 writes version into stderr
@@ -85,7 +85,7 @@ class Finder:
             return output.split()[1]
 
         command = r'print(__import__("sys").version)'
-        result = subprocess.run([str(path), '-c', command], capture_output=True)
+        result = subprocess.run([str(path), '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode != 0:
             raise LookupError(result.stderr.decode())
         return result.stdout.decode().split()[0]
