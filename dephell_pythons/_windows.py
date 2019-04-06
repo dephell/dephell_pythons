@@ -19,7 +19,16 @@ class WindowsFinder:
                 version=Version(str(env.info._d['Version'])),
                 implementation='python',  # TODO: guess architecture
             )
-            libs = env.info._d['PythonPath']._d[''].split(';')
-            python.lib_paths = [Path(path) for path in libs]
+            python.lib_paths = self._get_lib_paths(env)
             pythons.append(python)
         return pythons
+
+    @staticmethod
+    def _get_lib_paths(env) -> List[Path]:
+        paths = []
+        libs = env.info._d['PythonPath']._d[''].split(';')
+        for path in libs:
+            path = Path(path)
+            if 'Scripts' not in path.parts:
+                paths.append(path)
+        return paths
