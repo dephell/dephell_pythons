@@ -26,7 +26,7 @@ def test_get_pythons_real():
     else:
         f = Finder()
     assert len(f.pythons) > 0
-    assert sys.executable in [str(p.path) for p in f.pythons]
+    assert sys.executable.lower() in [str(p.path).lower() for p in f.pythons]
 
 
 def test_get_pythons_fake():
