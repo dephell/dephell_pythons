@@ -1,6 +1,7 @@
 import os
 import subprocess
 from fnmatch import fnmatch
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional, List, Iterable, Iterator
 
@@ -57,12 +58,22 @@ class Finder:
         return False
 
     @staticmethod
+    @lru_cache(maxsize=32)
     def get_version(path: Path) -> str:
+        if path.name.startswith('python'):
+            # this works much faster, so let's do it if possible
+            result = subprocess.run([str(path), '--version'], capture_output=True)
+            if result.returncode != 0:
+                raise LookupError(result.stderr.decode())
+            # cpython 2 writes version into stderr
+            output = result.stdout.decode() + ' ' + result.stderr.decode()
+            return output.split()[1]
+
         command = r'print(__import__("sys").version)'
         result = subprocess.run([str(path), '-c', command], capture_output=True)
         if result.returncode != 0:
             raise LookupError(result.stderr.decode())
-        return result.stdout.decode().split()[0].strip()
+        return result.stdout.decode().split()[0]
 
     def is_python(self, path: Path) -> bool:
         # https://stackoverflow.com/a/377028/8704691
@@ -85,7 +96,7 @@ class Finder:
                 return True
         return False
 
-    def get_pythons(self, paths: Iterable = None) -> Iterator[Path]:
+    def get_pythons(self, paths: Iterable[Path] = None) -> Iterator[Path]:
         if paths is None:
             paths = self.paths
         for path in paths:

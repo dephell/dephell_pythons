@@ -3,25 +3,33 @@ import os
 import sys
 from pathlib import Path
 from platform import python_implementation, python_version
-from typing import Iterator, Optional, Union
+from typing import Iterator, Optional, Union, Tuple
 
 # external
 import attr
 from packaging.version import InvalidVersion, Version
-from pythonfinder import Finder
+from pythonfinder import WindowsFinder
 
 # project
 from dephell_specifier import RangeSpecifier
 
 # app
+from ._cached_property import cached_property
 from ._constants import PYTHONS
+from ._finder import Finder
 from ._python import Python
 
 
-@attr.s(slots=True)
+def _get_finder():
+    if os.name == "nt":
+        return WindowsFinder()
+    return Finder()
+
+
+@attr.s()
 class Pythons:
     abstract = attr.ib(type=bool, default=False)
-    finder = Finder()
+    finder = attr.ib(factory=_get_finder, repr=False)
 
     # PROPERTIES
 
@@ -32,6 +40,10 @@ class Pythons:
             version=Version(python_version()),
             implementation=python_implementation(),
         )
+
+    @cached_property
+    def _paths(self) -> Tuple[Path, ...]:
+        return tuple(self.finder.get_pythons())
 
     # PUBLIC METHODS
 
@@ -142,21 +154,32 @@ class Pythons:
 
     # PRIVATE METHODS
 
-    @staticmethod
-    def _entry_to_python(entry) -> Python:
-        return Python(
-            path=entry.path,
-            version=entry.py_version.version,
-            # TODO: detect implementation (How? From path?)
-            implementation=python_implementation(),
-        )
+    def _get_from_pythonfinder(self) -> Iterator[Python]:
+        for entry in self.finder.find_all_python_versions():
+            yield Python(
+                path=entry.path,
+                version=entry.py_version.version,
+                # TODO: detect implementation (How? From path?)
+                implementation=python_implementation(),
+            )
+
+    def _get_from_finder(self) -> Iterator[Python]:
+        for path in self._paths:
+            yield Python(
+                path=path,
+                version=Version(self.finder.get_version(path)),
+                # TODO: detect implementation (How? From path?)
+                implementation=python_implementation(),
+            )
 
     # MAGIC METHODS
 
     def __iter__(self) -> Iterator[Python]:
         if not self.abstract:
-            for entry in self.finder.find_all_python_versions():
-                yield self._entry_to_python(entry)
+            if isinstance(self.finder, WindowsFinder):
+                yield from self._get_from_pythonfinder()
+            else:
+                yield from self._get_from_finder()
             return
 
         # return non-abstract pythons
