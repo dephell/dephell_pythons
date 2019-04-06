@@ -81,7 +81,7 @@ class Finder:
                 raise LookupError(result.stderr.decode())
             # cpython 2 writes version into stderr
             output = result.stdout.decode() + ' ' + result.stderr.decode()
-            return output.split()[1]
+            return output.split()[1].rstrip('+')
 
         command = r'print(__import__("sys").version)'
         result = subprocess.run([str(path), '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
