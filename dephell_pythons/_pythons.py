@@ -143,9 +143,13 @@ class Pythons:
         for python in self:
             if path.samefile(python.path):
                 return python
-        pythons = list(self.finder.get_pythons(paths=[path]))
-        if len(pythons) == 1:
-            return pythons[0]
+        paths = list(self.finder.get_pythons(paths=[path]))
+        if len(paths) == 1:
+            return Python(
+                path=paths[0],
+                version=Version(self.get_version(paths[0])),
+                implementation=self.get_implementation(paths[0]),
+            )
         return None
 
     # MAGIC METHODS
