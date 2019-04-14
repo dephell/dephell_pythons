@@ -143,6 +143,9 @@ class Pythons:
         for python in self:
             if path.samefile(python.path):
                 return python
+        pythons = list(self.finder.get_pythons(paths=[path]))
+        if len(pythons) == 1:
+            return pythons[0]
         return None
 
     # MAGIC METHODS
