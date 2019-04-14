@@ -147,8 +147,8 @@ class Pythons:
         if len(paths) == 1:
             return Python(
                 path=paths[0],
-                version=Version(self.get_version(paths[0])),
-                implementation=self.get_implementation(paths[0]),
+                version=Version(self.finder.get_version(paths[0])),
+                implementation=self.finder.get_implementation(paths[0]),
             )
         return None
 
