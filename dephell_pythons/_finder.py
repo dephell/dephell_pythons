@@ -7,12 +7,16 @@ from packaging.version import Version
 from pathlib import Path
 from typing import Optional, List, Iterable, Iterator
 
+import attr
+
 from ._cached_property import cached_property
 from ._constants import PYTHON_IMPLEMENTATIONS, SUFFIX_PATTERNS
 from ._python import Python
 
 
+@attr.s()
 class Finder:
+    allow_shims = attr.ib(type=bool, default=False)
 
     # properties
 
@@ -47,7 +51,7 @@ class Finder:
             if not path.exists():
                 continue
             path = path.resolve()
-            if not self.in_shims(path):
+            if self.allow_shims or not self.in_shims(path):
                 good_paths.append(path)
         return good_paths
 

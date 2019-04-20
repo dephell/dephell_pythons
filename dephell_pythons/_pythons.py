@@ -143,6 +143,13 @@ class Pythons:
         for python in self:
             if path.samefile(python.path):
                 return python
+        paths = list(self.finder.get_pythons(paths=[path]))
+        if len(paths) == 1:
+            return Python(
+                path=paths[0],
+                version=Version(self.finder.get_version(paths[0])),
+                implementation=self.finder.get_implementation(paths[0]),
+            )
         return None
 
     # MAGIC METHODS
