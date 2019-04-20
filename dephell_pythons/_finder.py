@@ -32,10 +32,10 @@ class Finder:
             os.environ.get('ASDF_DATA_DIR'),
         )
         paths = []
-        for path in known_paths:
+        for path in known_paths:  # type: Path # type: ignore
             if not path:
                 continue
-            path = os.path.expandvars(path).strip('"')
+            path = os.path.expandvars(path).strip('"')  # type: ignore
             path = Path(path).expanduser()
             if path.exists():
                 paths.append(path.resolve())
@@ -44,9 +44,9 @@ class Finder:
     @cached_property
     def paths(self) -> List[Path]:
         all_paths = os.environ.get('PATH', '').split(os.pathsep)
-        good_paths = []
-        for path in all_paths:
-            path = os.path.expandvars(path.strip('"'))
+        good_paths = []  # type: List[Path]
+        for path in all_paths:  # type: Path # type: ignore
+            path = os.path.expandvars(path.strip('"'))  # type: ignore
             path = Path(path).expanduser()
             if not path.exists():
                 continue
@@ -62,7 +62,7 @@ class Finder:
             pythons.append(Python(
                 path=path,
                 version=Version(self.get_version(path)),
-                implementation=self.get_implementation(path),
+                implementation=self.get_implementation(path) or 'python',
             ))
         pythons.sort(key=attrgetter('version'), reverse=True)
         return pythons
