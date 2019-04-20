@@ -28,7 +28,7 @@ def test_get_pythons_real():
     assert len(f.pythons) > 0
     if not IS_WINDOWS:
         assert which('python').lower() in [str(p.path).lower() for p in f.pythons]
-    assert which('python3').lower() in [str(p.path).lower() for p in f.pythons]
+        assert which('python3').lower() in [str(p.path).lower() for p in f.pythons]
 
 
 def test_get_pythons_fake():
