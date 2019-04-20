@@ -102,7 +102,10 @@ class Finder:
 
     def is_python(self, path: Path) -> bool:
         # https://stackoverflow.com/a/377028/8704691
-        if not path.is_file():
+        try:
+            if not path.is_file():
+                return False
+        except PermissionError:
             return False
         if not os.access(str(path), os.X_OK):
             return False
