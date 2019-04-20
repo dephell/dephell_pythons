@@ -1,15 +1,17 @@
-.hypothesis/
 .pytest_cache/
-.tox/
-
 __pycache__/
-*.py[cod]
+*.pyc
 
-*.egg-info
-build/
+*.egg-info/
 dist/
-MANIFEST
+build/
 pip-wheel-metadata/
 
-setup.py
+.tox
+.mypy_cache
+
+.dephell_cache/
+.dephell_report/
+
 README.rst
+setup.py
