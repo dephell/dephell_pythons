@@ -148,7 +148,7 @@ class Pythons:
             return Python(
                 path=paths[0],
                 version=Version(self.finder.get_version(paths[0])),
-                implementation=self.finder.get_implementation(paths[0]),
+                implementation=self.finder.get_implementation(paths[0]) or 'python',
             )
         return None
 
@@ -179,6 +179,6 @@ class Pythons:
             yield Python(
                 path=path,
                 version=Version(version),
-                implementation=self.finder.get_implementation(path),
+                implementation=self.finder.get_implementation(path) or 'python',
                 abstract=True,
             )
