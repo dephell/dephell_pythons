@@ -16,7 +16,6 @@ from ._python import Python
 
 @attr.s(frozen=True, hash=True)
 class Finder:
-    allow_shims = attr.ib(type=bool, default=False)
 
     # properties
 
@@ -25,7 +24,7 @@ class Finder:
         known_paths = (
             # pyenv
             '~/.pyenv',
-            '/opt/pyenv/shims/',
+            '/opt/pyenv',
             os.environ.get('PYENV_ROOT'),
             # asdf
             '~/.asdf',
@@ -51,8 +50,15 @@ class Finder:
             if not path.exists():
                 continue
             path = path.resolve()
-            if self.allow_shims or not self.in_shims(path):
+            if self.in_shims(path):
+                continue
+            good_paths.append(path)
+
+        for shim in self.shims:
+            path = shim / 'versions'
+            if path.exists():
                 good_paths.append(path)
+
         return good_paths
 
     @cached_property
@@ -63,6 +69,7 @@ class Finder:
                 path=path,
                 version=Version(self.get_version(path)),
                 implementation=self.get_implementation(path) or 'python',
+                shim=self.in_shims(path=path),
             ))
         pythons.sort(key=attrgetter('version'), reverse=True)
         return pythons
@@ -77,12 +84,6 @@ class Finder:
 
     @lru_cache(maxsize=32)
     def get_version(self, path: Path) -> str:
-        # get version from path for shims
-        if self.in_shims(path=path):
-            for part in path.parts:
-                if part[:2] in ('2.', '3.'):
-                    return part.rstrip('+')
-
         # get version from CLI for cpython
         if path.name.startswith('python'):
             # this works much faster, so let's do it if possible
@@ -135,10 +136,18 @@ class Finder:
         if paths is None:
             paths = self.paths
         for path in paths:
+            # single binary
             if path.is_file():
                 if self.is_python(path=path):
                     yield path
                 continue
+
+            # directory with executables
             for executable in path.iterdir():
+                if self.is_python(path=executable):
+                    yield executable
+
+            # shims directory
+            for executable in path.glob('*/bin/*'):
                 if self.is_python(path=executable):
                     yield executable

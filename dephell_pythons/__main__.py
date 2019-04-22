@@ -1,13 +1,13 @@
 import json
 
-from ._finder import Finder
+from ._pythons import Pythons
 
 
-finder = Finder()
 pythons = []
-for python in finder.get_pythons():
+for python in Pythons():
     pythons.append(dict(
-        path=str(python),
-        version=finder.get_version(python),
+        path=str(python.path),
+        version=str(python.version),
+        shim=python.shim,
     ))
 print(json.dumps(pythons, sort_keys=True, indent=2))
