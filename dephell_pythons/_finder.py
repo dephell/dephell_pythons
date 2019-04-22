@@ -69,6 +69,7 @@ class Finder:
                 path=path,
                 version=Version(self.get_version(path)),
                 implementation=self.get_implementation(path) or 'python',
+                shim=self.in_shims(path=path),
             ))
         pythons.sort(key=attrgetter('version'), reverse=True)
         return pythons

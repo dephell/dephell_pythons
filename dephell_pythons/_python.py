@@ -15,7 +15,9 @@ class Python:
     path = attr.ib(type=Path)
     version = attr.ib(type=Version)
     implementation = attr.ib(type=str)
+
     abstract = attr.ib(type=bool, default=False)
+    shim = attr.ib(type=bool, default=False)
 
     def __attrs_post_init__(self):
         if type(self.version) is str:
