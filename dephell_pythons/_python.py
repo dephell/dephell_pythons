@@ -17,6 +17,10 @@ class Python:
     implementation = attr.ib(type=str)
     abstract = attr.ib(type=bool, default=False)
 
+    def __attrs_post_init__(self):
+        if type(self.version) is str:
+            self.version = Version(self.version)
+
     def get_short_version(self, size=2) -> Version:
         numbers = map(str, self.version.release[:size])
         return Version('.'.join(numbers))

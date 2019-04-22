@@ -14,7 +14,7 @@ from ._constants import PYTHON_IMPLEMENTATIONS, SUFFIX_PATTERNS
 from ._python import Python
 
 
-@attr.s()
+@attr.s(frozen=True, hash=True)
 class Finder:
     allow_shims = attr.ib(type=bool, default=False)
 
@@ -75,9 +75,15 @@ class Finder:
                 return True
         return False
 
-    @staticmethod
     @lru_cache(maxsize=32)
-    def get_version(path: Path) -> str:
+    def get_version(self, path: Path) -> str:
+        # get version from path for shims
+        if self.in_shims(path=path):
+            for part in path.parts:
+                if part[:2] in ('2.', '3.'):
+                    return part.rstrip('+')
+
+        # get version from CLI for cpython
         if path.name.startswith('python'):
             # this works much faster, so let's do it if possible
             result = subprocess.run([str(path), '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -87,6 +93,7 @@ class Finder:
             output = result.stdout.decode() + ' ' + result.stderr.decode()
             return output.split()[1].rstrip('+')
 
+        # get version from interpreter for other implementations (like pypy)
         command = r'print(__import__("sys").version)'
         result = subprocess.run([str(path), '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode != 0:
