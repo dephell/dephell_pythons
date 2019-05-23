@@ -6,6 +6,6 @@
 #-------------------------------------------------------------------------
 
 __author__ = 'Steve Dower <steve.dower@python.org>'
-__version__ = '0.1.10'
+__version__ = '0.1.11'
 
 from .environment import findall, find, findone
