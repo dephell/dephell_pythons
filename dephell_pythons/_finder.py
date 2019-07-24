@@ -11,6 +11,7 @@ import attr
 
 from ._cached_property import cached_property
 from ._constants import PYTHON_IMPLEMENTATIONS, SUFFIX_PATTERNS
+from ._shell_utils import is_dir, is_file
 from ._python import Python
 
 
@@ -108,14 +109,11 @@ class Finder:
                 return implementation
         return None
 
-    def is_python(self, path: Path) -> bool:
-        # https://stackoverflow.com/a/377028/8704691
-        try:
-            if not path.is_file():
-                return False
-        except PermissionError:
-            return False
-        if not os.access(str(path), os.X_OK):
+    def is_python(self, path: Path, force: bool = False) -> bool:
+        """
+        force -- do not check access and existence, because it was already checked
+        """
+        if not force and not is_file(path):
             return False
 
         implementation = self.get_implementation(path=path)
@@ -137,9 +135,12 @@ class Finder:
             paths = self.paths
         for path in paths:
             # single binary
-            if path.is_file():
-                if self.is_python(path=path):
+            if is_file(path):
+                if self.is_python(path=path, force=True):
                     yield path
+                continue
+
+            if not is_dir(path):
                 continue
 
             # directory with executables
