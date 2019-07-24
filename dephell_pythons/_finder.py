@@ -1,18 +1,21 @@
+# built-in
 import os
 import subprocess
 from fnmatch import fnmatch
 from functools import lru_cache
 from operator import attrgetter
-from packaging.version import Version
 from pathlib import Path
-from typing import Optional, List, Iterable, Iterator
+from typing import Iterable, Iterator, List, Optional
 
+# external
 import attr
+from packaging.version import Version
 
+# app
 from ._cached_property import cached_property
 from ._constants import PYTHON_IMPLEMENTATIONS, SUFFIX_PATTERNS
-from ._shell_utils import is_dir, is_file
 from ._python import Python
+from ._shell_utils import is_dir, is_file
 
 
 @attr.s(frozen=True, hash=True)
