@@ -112,12 +112,11 @@ class Finder:
                 return implementation
         return None
 
-    def is_python(self, path: Path, ensure_executable: bool = False) -> bool:
+    def is_python(self, path: Path, check_access: bool = True) -> bool:
         """
-        ensure_executable -- do not check access and existence,
-            because it was already checked
+        check_access -- check file existence and execution access
         """
-        if not ensure_executable and not is_executable(path):
+        if check_access and not is_executable(path):
             return False
 
         implementation = self.get_implementation(path=path)
@@ -140,7 +139,7 @@ class Finder:
         for path in paths:
             # single binary
             if is_executable(path):
-                if self.is_python(path=path, ensure_executable=True):
+                if self.is_python(path=path, check_access=False):
                     yield path
                 continue
 
