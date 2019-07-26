@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 # https://stackoverflow.com/a/377028/8704691
-def is_file(path: Path) -> bool:
+def is_executable(path: Path) -> bool:
     """
     1. It exists
     2. It's a file

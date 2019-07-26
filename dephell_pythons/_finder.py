@@ -112,11 +112,11 @@ class Finder:
                 return implementation
         return None
 
-    def is_python(self, path: Path, force: bool = False) -> bool:
+    def is_python(self, path: Path, ensure_exists: bool = True) -> bool:
         """
         force -- do not check access and existence, because it was already checked
         """
-        if not force and not is_file(path):
+        if ensure_exists and not is_file(path):
             return False
 
         implementation = self.get_implementation(path=path)
@@ -139,7 +139,7 @@ class Finder:
         for path in paths:
             # single binary
             if is_file(path):
-                if self.is_python(path=path, force=True):
+                if self.is_python(path=path, ensure_exists=False):
                     yield path
                 continue
 
