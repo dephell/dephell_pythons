@@ -15,7 +15,7 @@ from packaging.version import Version
 from ._cached_property import cached_property
 from ._constants import PYTHON_IMPLEMENTATIONS, SUFFIX_PATTERNS
 from ._python import Python
-from ._shell_utils import is_dir, is_file
+from ._shell_utils import is_dir, is_executable
 
 
 @attr.s(frozen=True, hash=True)
@@ -112,11 +112,12 @@ class Finder:
                 return implementation
         return None
 
-    def is_python(self, path: Path, ensure_exists: bool = True) -> bool:
+    def is_python(self, path: Path, ensure_executable: bool = False) -> bool:
         """
-        force -- do not check access and existence, because it was already checked
+        ensure_executable -- do not check access and existence,
+            because it was already checked
         """
-        if ensure_exists and not is_file(path):
+        if not ensure_executable and not is_executable(path):
             return False
 
         implementation = self.get_implementation(path=path)
@@ -138,8 +139,8 @@ class Finder:
             paths = self.paths
         for path in paths:
             # single binary
-            if is_file(path):
-                if self.is_python(path=path, ensure_exists=False):
+            if is_executable(path):
+                if self.is_python(path=path, ensure_executable=True):
                     yield path
                 continue
 
