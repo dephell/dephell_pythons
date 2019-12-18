@@ -19,7 +19,7 @@ command = "mypy --ignore-missing-imports --allow-redefinition dephell_pythons"
 
 [tool.poetry]
 name = "dephell_pythons"
-version = "0.1.12"
+version = "0.1.13"
 authors = ["Gram <master_fess@mail.ru>"]
 description = "Work with python versions"
 readme = "README.md"
@@ -41,4 +41,3 @@ python = ">=3.5"
 attrs = "*"
 packaging = "*"
 dephell-specifier = "*"
-
