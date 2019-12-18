@@ -107,6 +107,8 @@ class Finder:
 
     @staticmethod
     def get_implementation(path: Path) -> Optional[str]:
+        if path.name.startswith('pythonz'):
+            return None
         for implementation in PYTHON_IMPLEMENTATIONS:
             if path.name.startswith(implementation):
                 return implementation
