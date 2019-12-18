@@ -13,7 +13,7 @@ from packaging.version import InvalidVersion, Version
 from dephell_specifier import RangeSpecifier
 
 # app
-from ._constants import PYTHONS, IS_WINDOWS
+from ._constants import IS_WINDOWS, PYTHONS
 from ._finder import Finder
 from ._python import Python
 from ._windows import WindowsFinder

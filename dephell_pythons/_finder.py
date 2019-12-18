@@ -1,17 +1,21 @@
+# built-in
 import os
 import subprocess
 from fnmatch import fnmatch
 from functools import lru_cache
 from operator import attrgetter
-from packaging.version import Version
 from pathlib import Path
-from typing import Optional, List, Iterable, Iterator
+from typing import Iterable, Iterator, List, Optional
 
+# external
 import attr
+from packaging.version import Version
 
+# app
 from ._cached_property import cached_property
 from ._constants import PYTHON_IMPLEMENTATIONS, SUFFIX_PATTERNS
 from ._python import Python
+from ._shell_utils import is_dir, is_executable
 
 
 @attr.s(frozen=True, hash=True)
@@ -110,14 +114,11 @@ class Finder:
                 return implementation
         return None
 
-    def is_python(self, path: Path) -> bool:
-        # https://stackoverflow.com/a/377028/8704691
-        try:
-            if not path.is_file():
-                return False
-        except PermissionError:
-            return False
-        if not os.access(str(path), os.X_OK):
+    def is_python(self, path: Path, check_access: bool = True) -> bool:
+        """
+        check_access -- check file existence and execution access
+        """
+        if check_access and not is_executable(path):
             return False
 
         implementation = self.get_implementation(path=path)
@@ -139,9 +140,12 @@ class Finder:
             paths = self.paths
         for path in paths:
             # single binary
-            if path.is_file():
-                if self.is_python(path=path):
+            if is_executable(path):
+                if self.is_python(path=path, check_access=False):
                     yield path
+                continue
+
+            if not is_dir(path):
                 continue
 
             # directory with executables
