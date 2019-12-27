@@ -17,12 +17,13 @@ class WindowsFinder:
 
         pythons = []
         for env in findall():
-            path = getattr(env.info._d['InstallPath'], 'executable_path', None)
+            d = env.info._d
+            path = getattr(d.get('InstallPath'), 'executable_path', None)
             if path is None:
-                path = getattr(env.info._d['InstallPath'], '', None)
+                path = getattr(d.get('InstallPath'), '', None)
                 if path is None:
                     continue
-            version = str(env.info._d['Version'])
+            version = str(d['Version'])
             # conda returns it's own version
             if version[0] not in '23':
                 continue

@@ -13,7 +13,7 @@ def is_executable(path: Path) -> bool:
     try:
         if not path.is_file():
             return False
-    except PermissionError:
+    except OSError:
         return False
     if not os.access(str(path), os.X_OK):
         return False
@@ -29,7 +29,7 @@ def is_dir(path: Path) -> bool:
     try:
         if not path.is_dir():
             return False
-    except PermissionError:
+    except OSError:
         return False
     if not os.access(str(path), os.R_OK):
         return False
