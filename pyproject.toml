@@ -1,6 +1,7 @@
 [tool.dephell.main]
 from = {format = "poetry", path = "pyproject.toml"}
 to = {format = "setuppy", path = "setup.py"}
+tag = "v."
 
 [tool.dephell.flake8]
 from = {format = "pip", path = "requirements-flake.txt"}
@@ -20,7 +21,7 @@ command = "mypy --ignore-missing-imports --allow-redefinition dephell_pythons"
 [tool.poetry]
 name = "dephell_pythons"
 version = "0.1.14"
-authors = ["Gram <master_fess@mail.ru>"]
+authors = ["Gram <mail@orsinium.dev>"]
 description = "Work with python versions"
 readme = "README.md"
 license = "MIT"
@@ -37,7 +38,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.5"
+python = ">=3.6"
 attrs = "*"
 packaging = "*"
 dephell-specifier = "*"
