@@ -20,7 +20,7 @@ command = "mypy --ignore-missing-imports --allow-redefinition dephell_pythons"
 
 [tool.poetry]
 name = "dephell_pythons"
-version = "0.1.14"
+version = "0.1.15"
 authors = ["Gram <mail@orsinium.dev>"]
 description = "Work with python versions"
 readme = "README.md"
