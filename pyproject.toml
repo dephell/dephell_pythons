@@ -24,7 +24,7 @@ authors = ["Gram <master_fess@mail.ru>"]
 description = "Work with python versions"
 readme = "README.md"
 license = "MIT"
-repository = "https://github.com/dephell/dephell"
+repository = "https://github.com/dephell/dephell_pythons"
 keywords = ["dephell", "python", "pythons", "interpreter", "pyenv", "asdf", "pip", "pipenv"]
 # https://pypi.org/classifiers/
 classifiers = [
